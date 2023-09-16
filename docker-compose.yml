@@ -1,0 +1,30 @@
+services:
+  web-app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file: .env
+    ports:
+      - 3000:3000
+    networks:
+      - service-network
+
+  datadog:
+    image: 'datadog/agent:7.41.1'
+    environment:
+      - DD_API_KEY
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_DOCKER_LABELS_AS_TAGS={"my.custom.label.team":"team"}
+      - DD_TAGS='env:dd101-dev'
+      - DD_HOSTNAME=dd101-dev-host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    networks:
+      - service-network
+
+networks:
+  service-network: {}
